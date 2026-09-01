@@ -70,6 +70,7 @@
         </svg>
       </a>
       <a class="pill-name" href="#top">Robinsqueeze</a>
+      <span id="wallet-slot"></span>
       <button class="pill-toggle" id="pill-toggle" aria-expanded="false" aria-label="Open menu" aria-controls="pill-panel">
         <span></span><span></span>
       </button>
@@ -127,6 +128,22 @@
   <section class="statement section-pad" id="mechanism" data-rail="Mechanism">
     <div class="wrap">
       <p class="statement-text" data-reveal>
+        <strong>You remember 2021.</strong> Millions of people decided, at the same time, that they
+        weren't selling. It wasn't a strategy. It was a group of strangers finding out that
+        conviction is a real force when enough of them hold at once.
+      </p>
+      <p class="statement-text" data-reveal style="margin-top: 28px;">
+        The part nobody could actually see was the holding itself. You had to take it on faith
+        that everyone else was still there. <strong>Robinsqueeze makes that part visible.</strong>
+        Every routed buy sends canonical GME Stock Tokens into the Pair Vault — a contract with
+        no withdraw function, no admin transfer and no upgrade path. The reserve moves in one
+        direction, and you can check it yourself at any block.
+      </p>
+      <p class="statement-text" data-reveal style="margin-top: 28px; color: var(--accent-dim);">
+        Diamond hands, written in Solidity.
+      </p>
+
+      <p class="statement-text" data-reveal style="margin-top: 44px;">
         A routed RSQ purchase splits your USDG in one transaction. You receive RSQ.
         The Pair Vault receives canonical GME Stock Tokens. Protocol-owned liquidity
         receives the remainder. The split is enforced by the contract, not calculated
@@ -137,6 +154,11 @@
         Paired Buy Router acquire GME. RSQ is an ordinary ERC-20 with no transfer tax, so
         anyone can trade it directly against a pool and bypass the router entirely. We say
         <strong>“every routed buy acquires GME”</strong> — never “every buy”.</p>
+        <p><strong>On 2021.</strong> That is history and motivation, not a forecast. Robinsqueeze
+        does not predict, promise or attempt to cause a short squeeze in GameStop stock, and
+        nothing here should be read that way. A routed buy purchases a tokenized instrument on
+        Robinhood Chain; it does not touch GameStop's float, its short interest, or its listed
+        share price.</p>
       </div>
     </div>
   </section>
@@ -160,6 +182,48 @@
           <span><i style="background: var(--ink);"></i> <strong>800 bps</strong>&nbsp;— acquires GME, paid straight to the Pair Vault</span>
           <span><i style="background: var(--neutral);"></i> <strong>200 bps</strong>&nbsp;— funds protocol-owned RSQ liquidity</span>
         </div>
+      </div>
+
+      <!-- Interactive allocation preview. Pre-launch this is local arithmetic
+           mirroring previewSplit(); once the router exists the real module
+           reads previewSplit() from the contract so the two cannot disagree. -->
+      <div class="trade" id="trade" data-reveal>
+        <div class="trade-row">
+          <label class="trade-field">
+            <span class="trade-label">You spend</span>
+            <span class="trade-input">
+              <input id="trade-amount" type="text" inputmode="decimal" placeholder="0.00"
+                     autocomplete="off" spellcheck="false" aria-label="USDG amount">
+              <span class="trade-unit">USDG</span>
+            </span>
+            <span class="sub">Balance: <span id="trade-balance">—</span></span>
+          </label>
+          <label class="trade-field trade-field-narrow">
+            <span class="trade-label">Max slippage</span>
+            <select id="trade-slippage" aria-label="Maximum slippage">
+              <option value="10">0.10%</option>
+              <option value="50" selected>0.50%</option>
+              <option value="100">1.00%</option>
+              <option value="300">3.00%</option>
+            </select>
+            <span class="sub" id="trade-minimum">available at launch</span>
+          </label>
+        </div>
+
+        <dl class="trade-breakdown">
+          <div><dt>90% buys RSQ for you</dt><dd><span id="alloc-rsq">0</span> USDG</dd></div>
+          <div><dt>8% acquires GME for the Pair Vault</dt><dd><span id="alloc-pair">0</span> USDG</dd></div>
+          <div><dt>2% funds protocol-owned liquidity</dt><dd><span id="alloc-liq">0</span> USDG</dd></div>
+        </dl>
+        <p class="sub" id="alloc-conserves">sums to your input exactly</p>
+
+        <button class="btn accent trade-action" id="trade-action" type="button" data-phase="notDeployed">
+          Not deployed yet
+        </button>
+        <div id="trade-note" class="trade-note">
+          <span class="state">Not deployed — nothing to sign, and no address to send funds to</span>
+        </div>
+        <p class="sub" id="chain-label">Robinhood Chain &middot; 4663</p>
       </div>
 
       <div class="disclosure" style="margin-top: 30px;" data-reveal>
@@ -440,6 +504,10 @@
 <script src="js/cursor.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/scroll.js"></script>
+<!-- The wallet layer is lazy. wallet-boot.js is <2KB and renders the
+     allocation preview + Connect button; it dynamically imports the real
+     77KB (brotli) viem bundle only when someone reaches for a wallet. -->
+<script type="module" src="js/wallet-boot.js"></script>
 <script>
   addEventListener("load", () => document.documentElement.classList.remove("pg-hold"));
   setTimeout(() => document.documentElement.classList.remove("pg-hold"), 1200);

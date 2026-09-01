@@ -1263,3 +1263,163 @@ html.intro-seen .hero-line:last-child { animation-delay: 0.35s; }
   transition: background var(--t-fast) var(--ease);
 }
 a.addr:hover { background: var(--grey); }
+
+/* ================================================================
+   WALLET + TRADE
+   Reuses the existing tokens and component language throughout — no
+   new colours, radii or easing are introduced here.
+   ================================================================ */
+
+/* the pill gains a fourth slot for the wallet control */
+.pill-bar { grid-template-columns: auto 1fr auto auto; }
+
+.wallet-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.wallet-chip:hover { opacity: 0.85; }
+.wallet-chip:active { transform: scale(0.97); }
+.wallet-chip[disabled] { opacity: 0.5; cursor: default; }
+.wallet-chip.is-wrong { background: var(--warn); }
+.wallet-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: 0 0 auto;
+}
+.wallet-chip.is-wrong .wallet-dot { background: #fff; }
+
+/* ---------- wallet chooser ----------
+   Needed because EIP-6963 can surface several wallets at once; picking for
+   the user is how someone ends up connected to the wrong one. */
+.wallet-picker {
+  position: fixed;
+  inset: 0;
+  z-index: 12100;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 19, 11, 0.55);
+  backdrop-filter: blur(6px);
+}
+.wallet-picker-card {
+  width: min(360px, calc(100vw - 40px));
+  background: var(--white);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 30px 80px rgba(5, 19, 11, 0.3);
+}
+.wallet-picker-card h3 { font-size: var(--fs-h3); }
+.wallet-list { display: grid; gap: 8px; }
+.wallet-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--card);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--t-fast) var(--ease);
+}
+.wallet-option:hover { background: var(--grey); }
+.wallet-option img { border-radius: 6px; }
+.wallet-picker-close {
+  justify-self: center;
+  font-size: var(--fs-micro);
+  color: var(--neutral);
+  cursor: pointer;
+}
+
+/* ---------- trade panel ---------- */
+.trade {
+  grid-column: 1 / -1;
+  margin-top: 30px;
+  padding: 24px;
+  border-radius: var(--r-lg);
+  background: var(--card);
+  display: grid;
+  gap: 18px;
+  max-width: 720px;
+}
+.trade-row { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 620px) { .trade-row { grid-template-columns: 1fr auto; } }
+.trade-field { display: grid; gap: 6px; }
+.trade-label { font-size: var(--fs-micro); font-weight: 500; color: var(--neutral); }
+.trade-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+}
+.trade-input input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  font: inherit;
+  font-size: clamp(20px, 2.2vw, 26px);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--ls-tight);
+  color: var(--ink);
+}
+.trade-unit { font-size: var(--fs-meta); font-weight: 500; color: var(--neutral); }
+.trade-field-narrow select {
+  border: 0;
+  outline: none;
+  background: var(--white);
+  border-radius: var(--r-md);
+  padding: 14px;
+  font: inherit;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.trade-breakdown { display: grid; gap: 2px; }
+.trade-breakdown > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--grey);
+}
+.trade-breakdown dt { font-size: var(--fs-meta); }
+.trade-breakdown dd {
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.trade-action { justify-self: stretch; justify-content: center; padding: 15px 22px; font-size: var(--fs-meta); }
+.trade-action[disabled] { opacity: 0.45; cursor: default; }
+/* the phase drives the colour, so state is legible without reading the label */
+.trade-action[data-phase="wrongNetwork"] { background: var(--warn); color: #fff; }
+.trade-action[data-phase="reverted"] { background: var(--danger); color: #fff; }
+.trade-action[data-phase="success"] { background: var(--accent); color: var(--accent-ink); }
+.trade-note { min-height: 22px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.sub.is-danger { color: var(--danger); font-weight: 500; }
+
+@media (max-width: 620px) {
+  /* the wallet chip would crowd the wordmark on a phone */
+  .pill-bar { grid-template-columns: auto 1fr auto; }
+  #wallet-slot { display: none; }
+}

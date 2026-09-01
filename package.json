@@ -1,0 +1,17 @@
+{
+  "name": "@robinsqueeze/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --format=esm --target=es2022 --minify --outfile=js/wallet.js",
+    "watch": "esbuild src/index.ts --bundle --format=esm --target=es2022 --outfile=js/wallet.js --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "^2.56.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "typescript": "^5.7.2"
+  }
+}
