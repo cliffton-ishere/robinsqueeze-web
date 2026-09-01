@@ -237,14 +237,14 @@ section { position: relative; }
 }
 
 /* ================= 5. Preloader =================
-   The wordmark is  < Brand >  — two chevrons framing the name.
-   Stage 0 (rest)    the chevrons are rotated 135deg and overlapped into
-                     a single folded diamond; no text.
-   Stage 1 (.spin)   they rotate upright.
-   Stage 2 (.unfold) they spread to EXACTLY the hero bracket positions
-                     while the name reveals between them.
+   The wordmark is  |> Robinsqueeze <|  — two solid wedges pressing inward.
+   Stage 0 (rest)    the wedges are rotated a quarter turn and offset so
+                     their apexes meet: a folded HOURGLASS. No text.
+   Stage 1 (.spin)   they rotate upright, pointing inward.
+   Stage 2 (.unfold) they spread to EXACTLY the hero wedge positions while
+                     the name reveals between them:  |> Robinsqueeze <|
    Stage 3 (.swipe)  the dark cover wipes away right-to-left, unveiling
-                     the hero — whose own chevrons are already sitting
+                     the hero — whose own wedges are already sitting
                      precisely under the preloader's. That is the trick:
                      nothing animates into place, the cover just leaves.
 
@@ -314,21 +314,18 @@ section { position: relative; }
   --bh: var(--mark-h);
   color: #fff;
   font-size: var(--fs-wordmark);
-  width: var(--bh);      /* folded: tight, the chevrons overlap */
+  width: var(--bh);      /* folded: tight, the wedges overlap */
   /* gap MUST be 0 here. The folded offsets below have to cancel the
-     chevrons' flex separation, and a gap in em would make that separation
+     wedges' flex separation, and a gap in em would make that separation
      scale on a different curve from --bh (they are clamps with different
-     breakpoints) — so the diamond would drift open at some widths. */
+     breakpoints) — so the hourglass would drift open at some widths. */
   gap: 0;
   transition: width var(--t-slow) var(--ease), gap var(--t-slow) var(--ease);
 }
 .pre-mark .bracket {
   height: var(--bh);
-  /* 90deg, not 135. This glyph's two arms sit at +/-45deg to each other, so
-     the fold's orientation is decided by the rotation: odd multiples of 90
-     put the arms on the diagonals and the mark assembles into a DIAMOND;
-     45 or 135 lands them axis-aligned and you get a square instead. Both
-     are closed and correct — this is purely which mark you want. */
+  /* A quarter turn stands the wedges on end so their apexes can meet.
+     Any other angle and they cross instead of touching. */
   rotate: 90deg;
   /* The folded HOURGLASS.
 
@@ -624,7 +621,7 @@ html.menu-open .pill-scrim {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* the open central band the chevrons sit in */
+  /* the open central band the wedges sit in */
   gap: clamp(200px, 34vh, 420px);
   text-align: center;
   padding-inline: var(--margin);
@@ -645,7 +642,7 @@ html.intro-seen .hero-line:last-child { animation-delay: 0.35s; }
   to   { opacity: 1; transform: none; }
 }
 
-/* the chevrons, pinned to the viewport centre at the span's edges —
+/* the wedges, pinned to the viewport centre at the span's edges —
    they land exactly where the preloader's already are */
 .hero-brackets {
   position: absolute;
@@ -660,7 +657,7 @@ html.intro-seen .hero-line:last-child { animation-delay: 0.35s; }
 }
 .hero-brackets .bracket { height: var(--mark-h); }
 
-/* the invisible hover band between the chevrons. Everything here is
+/* the invisible hover band between the wedges. Everything here is
    additive and off by default, so the resting position — and with it the
    preloader hand-off — is untouched. The nudge rides on `translate`, NOT
    `transform`, because .bracket.flip already spends transform on
@@ -708,7 +705,7 @@ html.intro-seen .hero-line:last-child { animation-delay: 0.35s; }
   letter-spacing: var(--ls-tight);
   line-height: 1.16;
 }
-/* the brand slot — one name at a time between two small chevrons.
+/* the brand slot — one name at a time between two small wedges.
    Everything is sized in em so it tracks the clamped statement type. */
 .slot {
   --brk-h: 0.713em;
