@@ -85,7 +85,7 @@ function renderPreview() {
  */
 const WALLET_SOURCES = [
   "./wallet.js",
-  "https://cdn.jsdelivr.net/gh/cliffton-ishere/robinsqueeze-web@__COMMIT__/js/wallet.js",
+  "https://cdn.jsdelivr.net/gh/cliffton-ishere/robinsqueeze-web@025d76c6daff575aa0fbfd01b4235428b281d74d/js/wallet.js",
 ];
 
 async function load() {
@@ -95,7 +95,7 @@ async function load() {
   if (slot) slot.innerHTML = '<button class="wallet-chip" type="button" disabled>Loading…</button>';
 
   for (const src of WALLET_SOURCES) {
-    if (src.includes("__COMMIT__")) continue; // not pinned yet
+    if (src.includes("025d76c6daff575aa0fbfd01b4235428b281d74d")) continue; // not pinned yet
     try {
       await import(src);
       return;
