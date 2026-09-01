@@ -248,26 +248,39 @@
         </p>
       </div>
 
+      <p class="sub" style="grid-column: 1 / -1; margin-bottom: -8px;">
+        Live from Robinhood Chain · <span id="live-block">connecting…</span>
+      </p>
       <dl class="stats" data-reveal-stagger>
         <div class="stat">
           <dt>GME in Pair Vault</dt>
-          <dd><span class="state">Not deployed</span></dd>
+          <dd id="live-vault-balance" data-live></dd>
           <span class="sub">Live from <code>PairVault.pairAssetBalance()</code></span>
         </div>
         <div class="stat">
           <dt>Cumulative GME acquired</dt>
-          <dd><span class="state">Awaiting first routed buy</span></dd>
+          <dd id="live-cumulative" data-live></dd>
           <span class="sub">Monotonic; can never decrease</span>
         </div>
         <div class="stat">
           <dt>USDG routed to GME</dt>
-          <dd><span class="state">Awaiting first routed buy</span></dd>
+          <dd id="live-settlement" data-live></dd>
           <span class="sub">USDG uses 6 decimals</span>
         </div>
         <div class="stat">
+          <dt>GME price · pool-implied</dt>
+          <dd id="live-gme-price" data-live></dd>
+          <span class="sub">From the fee-500 pool's own <code>slot0()</code>. Spot, for display only.</span>
+        </div>
+        <div class="stat">
+          <dt>GME/USDG pool depth</dt>
+          <dd id="live-pool-depth" data-live style="font-size: 20px;"></dd>
+          <span class="sub">Execution venue for the 8% slice</span>
+        </div>
+        <div class="stat">
           <dt>Corporate-action multiplier</dt>
-          <dd>1.000000</dd>
-          <span class="sub">Live: <code>uiMultiplier()</code> on canonical GME</span>
+          <dd id="live-multiplier" data-live></dd>
+          <span class="sub">Live from <code>uiMultiplier()</code> on canonical GME</span>
         </div>
       </dl>
 
@@ -278,10 +291,11 @@
         holds tokens; it does not hold equity.</p>
         <p>Holding RSQ does <strong>not</strong> give you a claim on the vault's contents. No redemption
         right exists, and none is implied.</p>
-        <p><strong>Liquidity reality.</strong> The canonical GME/USDG venue holds roughly 194,750 USDG.
-        That is real, arbitraged liquidity, but it is thin enough that large routed buys move the price
-        against themselves. Slippage limits are conservative by default and the router enforces a
-        minimum output you set — it will revert rather than fill you at a bad price.</p>
+        <p><strong>Liquidity reality.</strong> The canonical GME/USDG venue's depth is shown live
+        above, read from the pool itself. Measured on-chain, a $500,000 routed buy moves the pair leg
+        about 0.48% — the pool is thinner than some, but its liquidity is well concentrated.
+        Slippage limits are conservative by default and the router enforces a minimum output you set:
+        it reverts rather than filling you at a bad price.</p>
       </div>
     </div>
   </section>
@@ -379,21 +393,21 @@
             <a class="addr" target="_blank" rel="noopener"
                href="https://robinhoodchain.blockscout.com/address/0xE2b46c905E12Ab8E2f864e4821a4325884C1B126">0xE2b46c90…B126</a>
           </dd>
-          <span class="sub">Execution venue for the 8% slice · 194,750 USDG deep</span>
+          <span class="sub">Execution venue for the 8% slice · <span id="live-pool-depth-inline">reading…</span> deep</span>
         </div>
         <div class="stat">
           <dt>RSQ token</dt>
-          <dd><span class="state">Not deployed</span></dd>
+          <dd id="live-rsq" data-live></dd>
           <span class="sub">Genesis supply 1,000,000,000 · no mint after</span>
         </div>
         <div class="stat">
           <dt>Paired Buy Router</dt>
-          <dd><span class="state">Not deployed</span></dd>
+          <dd id="live-router" data-live></dd>
           <span class="sub">Testnet first, then mainnet on approval</span>
         </div>
         <div class="stat">
           <dt>RSQ/USDG market</dt>
-          <dd><span class="state">Pool unavailable</span></dd>
+          <dd id="live-rsq-market" data-live></dd>
           <span class="sub">Does not exist yet; created at bootstrap</span>
         </div>
       </dl>
@@ -508,6 +522,10 @@
      allocation preview + Connect button; it dynamically imports the real
      77KB (brotli) viem bundle only when someone reaches for a wallet. -->
 <script type="module" src="js/wallet-boot.js"></script>
+<!-- Live on-chain reads. Deliberately NOT viem: these run for every visitor,
+     so they use raw JSON-RPC with hand-encoded calldata (~4KB, no deps)
+     rather than pulling in the 77KB transaction bundle. -->
+<script defer src="js/live.js"></script>
 <script>
   addEventListener("load", () => document.documentElement.classList.remove("pg-hold"));
   setTimeout(() => document.documentElement.classList.remove("pg-hold"), 1200);
