@@ -73,20 +73,40 @@ function renderPreview() {
   if (c) c.textContent = conserves ? "sums to your input exactly" : "ROUNDING ERROR";
 }
 
-/** Pulls in the real wallet layer once, on demand. */
+/**
+ * Pulls in the real wallet layer once, on demand.
+ *
+ * Local first. The CDN entry is a fallback for hosts where the 314 KB bundle
+ * was not uploaded - it is OUR OWN build, pinned to an immutable commit hash
+ * on jsDelivr, not a third-party package. Pinning by SHA is what keeps this
+ * from being a supply-chain hole: the bytes at that commit can never change.
+ * Once the host serves js/wallet.js the local path always wins and the
+ * fallback becomes dead code.
+ */
+const WALLET_SOURCES = [
+  "./wallet.js",
+  "https://cdn.jsdelivr.net/gh/cliffton-ishere/robinsqueeze-web@__COMMIT__/js/wallet.js",
+];
+
 async function load() {
   if (loaded) return;
   loaded = true;
   const slot = document.getElementById("wallet-slot");
   if (slot) slot.innerHTML = '<button class="wallet-chip" type="button" disabled>Loading…</button>';
-  try {
-    await import("./wallet.js");
-  } catch (err) {
-    loaded = false;
-    console.error("[wallet] failed to load", err);
-    if (slot) slot.innerHTML = '<button class="wallet-chip" id="wallet-retry" type="button">Retry</button>';
-    document.getElementById("wallet-retry")?.addEventListener("click", () => void load());
+
+  for (const src of WALLET_SOURCES) {
+    if (src.includes("__COMMIT__")) continue; // not pinned yet
+    try {
+      await import(src);
+      return;
+    } catch (err) {
+      console.warn("[wallet] source failed:", src, err?.message ?? err);
+    }
   }
+
+  loaded = false;
+  if (slot) slot.innerHTML = '<button class="wallet-chip" id="wallet-retry" type="button">Retry</button>';
+  document.getElementById("wallet-retry")?.addEventListener("click", () => void load());
 }
 
 function boot() {
