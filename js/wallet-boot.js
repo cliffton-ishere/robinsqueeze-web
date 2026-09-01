@@ -95,7 +95,6 @@ async function load() {
   if (slot) slot.innerHTML = '<button class="wallet-chip" type="button" disabled>Loading…</button>';
 
   for (const src of WALLET_SOURCES) {
-    if (src.includes("025d76c6daff575aa0fbfd01b4235428b281d74d")) continue; // not pinned yet
     try {
       await import(src);
       return;
