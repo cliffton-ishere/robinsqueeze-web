@@ -165,7 +165,7 @@ async function refreshPanel() {
         balEl.innerHTML = `<span class="state">Balance unavailable</span>`;
       }
     } else {
-      balEl.textContent = "—";
+      balEl.textContent = "0.00";
     }
   }
 
@@ -199,7 +199,7 @@ function paintButton() {
   } else if (phase === "reverted" && lastHash) {
     note.innerHTML = `<span class="state is-danger">Reverted</span> <a class="addr" href="${explorer.tx(lastHash)}" target="_blank" rel="noopener">View ↗</a>`;
   } else if (phase === "notDeployed") {
-    note.innerHTML = `<span class="state">Not deployed — nothing to sign, and no address to send funds to</span>`;
+    note.innerHTML = `<span class="state">Launching soon. Nothing to sign yet, and no address to send funds to.</span>`;
   } else {
     note.textContent = "";
   }
@@ -244,7 +244,7 @@ async function onAction() {
       };
       const mins = minimums(params);
       if (mins.minRsqOut === 0n || mins.minPairOut === 0n) {
-        return fail("No quote available — refusing to submit without slippage protection");
+        return fail("No quote available. Refusing to submit without slippage protection.");
       }
 
       phase = "signing";

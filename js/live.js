@@ -179,11 +179,11 @@ function paintCanonical(d) {
 
 function paintProtocolMissing() {
   // No manifest: the protocol genuinely is not deployed. Say exactly that.
-  setHTML("live-vault-balance", state("Not deployed"));
-  setHTML("live-cumulative", state("Not deployed"));
-  setHTML("live-settlement", state("Not deployed"));
-  setHTML("live-rsq", state("Not deployed"));
-  setHTML("live-router", state("Not deployed"));
+  setHTML("live-vault-balance", state("Launching soon"));
+  setHTML("live-cumulative", state("Launching soon"));
+  setHTML("live-settlement", state("Launching soon"));
+  setHTML("live-rsq", state("Launching soon"));
+  setHTML("live-router", state("Launching soon"));
   setHTML("live-rsq-market", state("Pool unavailable"));
 }
 

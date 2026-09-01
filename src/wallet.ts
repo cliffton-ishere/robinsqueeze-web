@@ -230,7 +230,7 @@ export function friendlyError(err: unknown): string {
   const e = err as { code?: number; shortMessage?: string; message?: string };
   // 4001 is the user rejecting. It is not a failure and must not read like one.
   if (e?.code === 4001) return "Request cancelled";
-  if (e?.code === -32002) return "Check your wallet — a request is already open";
+  if (e?.code === -32002) return "Check your wallet: a request is already open";
   const msg = e?.shortMessage ?? e?.message ?? String(err);
   if (/user rejected|user denied/i.test(msg)) return "Request cancelled";
   if (/insufficient funds/i.test(msg)) return "Not enough ETH for gas";

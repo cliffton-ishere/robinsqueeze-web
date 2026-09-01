@@ -17,12 +17,12 @@
      Deliberately NOT referenced until it exists, so no broken image is served. -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Robinsqueeze">
-<meta property="og:title" content="Robinsqueeze — every routed buy acquires GME">
+<meta property="og:title" content="Robinsqueeze: every routed buy acquires GME">
 <meta property="og:description" content="A stock-paired liquidity protocol on Robinhood Chain. Every routed RSQ buy splits 90/8/2.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Robinsqueeze — every routed buy acquires GME">
+<meta name="twitter:title" content="Robinsqueeze: every routed buy acquires GME">
 <meta name="twitter:description" content="A stock-paired liquidity protocol on Robinhood Chain. Every routed RSQ buy splits 90/8/2.">
-<title>Robinsqueeze — every routed buy acquires GME</title>
+<title>Robinsqueeze: every routed buy acquires GME</title>
 <meta name="description" content="A stock-paired liquidity protocol on Robinhood Chain. Every routed RSQ buy splits 90/8/2: RSQ to you, GME to the Pair Vault, USDG to protocol-owned liquidity.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,7 +114,7 @@
       <svg class="bracket" viewBox="0 0 192 348"><path d="M0 0 L192 174 L0 348 Z" fill="currentColor"/></svg>
       <svg class="bracket flip" viewBox="0 0 192 348"><path d="M0 0 L192 174 L0 348 Z" fill="currentColor"/></svg>
     </div>
-    <a class="hero-gate" id="hero-gate" href="#" data-cursor-label="Not yet deployed" data-cursor-managed aria-label="Not yet deployed"></a>
+    <a class="hero-gate" id="hero-gate" href="#" data-cursor-label="Coming soon" data-cursor-managed aria-label="Coming soon"></a>
 
     <div class="hero-foot">
       <span>A stock-paired liquidity protocol on Robinhood Chain.</span>
@@ -135,7 +135,7 @@
       <p class="statement-text" data-reveal style="margin-top: 28px;">
         The part nobody could actually see was the holding itself. You had to take it on faith
         that everyone else was still there. <strong>Robinsqueeze makes that part visible.</strong>
-        Every routed buy sends canonical GME Stock Tokens into the Pair Vault — a contract with
+        Every routed buy sends canonical GME Stock Tokens into the Pair Vault: a contract with
         no withdraw function, no admin transfer and no upgrade path. The reserve moves in one
         direction, and you can check it yourself at any block.
       </p>
@@ -147,13 +147,13 @@
         A routed RSQ purchase splits your USDG in one transaction. You receive RSQ.
         The Pair Vault receives canonical GME Stock Tokens. Protocol-owned liquidity
         receives the remainder. The split is enforced by the contract, not calculated
-        in this page — and no administrator holds your funds at any point.
+        in this page. No administrator holds your funds at any point.
       </p>
       <div class="disclosure" style="margin-top: 34px;" data-reveal>
         <p><strong>Read this precisely.</strong> Only purchases executed through the official
         Paired Buy Router acquire GME. RSQ is an ordinary ERC-20 with no transfer tax, so
         anyone can trade it directly against a pool and bypass the router entirely. We say
-        <strong>“every routed buy acquires GME”</strong> — never “every buy”.</p>
+        <strong>“every routed buy acquires GME”</strong>, never “every buy”.</p>
         <p><strong>On 2021.</strong> That is history and motivation, not a forecast. Robinsqueeze
         does not predict, promise or attempt to cause a short squeeze in GameStop stock, and
         nothing here should be read that way. A routed buy purchases a tokenized instrument on
@@ -178,9 +178,9 @@
           <div class="alloc-seg liq"></div>
         </div>
         <div class="alloc-key">
-          <span><i style="background: var(--accent);"></i> <strong>9000 bps</strong>&nbsp;— buys RSQ, paid straight to your wallet</span>
-          <span><i style="background: var(--ink);"></i> <strong>800 bps</strong>&nbsp;— acquires GME, paid straight to the Pair Vault</span>
-          <span><i style="background: var(--neutral);"></i> <strong>200 bps</strong>&nbsp;— funds protocol-owned RSQ liquidity</span>
+          <span><i style="background: var(--accent);"></i> <strong>9000 bps</strong>&nbsp;· buys RSQ, paid straight to your wallet</span>
+          <span><i style="background: var(--ink);"></i> <strong>800 bps</strong>&nbsp;· acquires GME, paid straight to the Pair Vault</span>
+          <span><i style="background: var(--neutral);"></i> <strong>200 bps</strong>&nbsp;· funds protocol-owned RSQ liquidity</span>
         </div>
       </div>
 
@@ -196,7 +196,7 @@
                      autocomplete="off" spellcheck="false" aria-label="USDG amount">
               <span class="trade-unit">USDG</span>
             </span>
-            <span class="sub">Balance: <span id="trade-balance">—</span></span>
+            <span class="sub">Balance: <span id="trade-balance">0.00</span></span>
           </label>
           <label class="trade-field trade-field-narrow">
             <span class="trade-label">Max slippage</span>
@@ -218,10 +218,10 @@
         <p class="sub" id="alloc-conserves">sums to your input exactly</p>
 
         <button class="btn accent trade-action" id="trade-action" type="button" data-phase="notDeployed">
-          Not deployed yet
+          Launching soon
         </button>
         <div id="trade-note" class="trade-note">
-          <span class="state">Not deployed — nothing to sign, and no address to send funds to</span>
+          <span class="state">Launching soon. Nothing to sign yet, and no address to send funds to.</span>
         </div>
         <p class="sub" id="chain-label">Robinhood Chain &middot; 4663</p>
       </div>
@@ -293,7 +293,7 @@
         right exists, and none is implied.</p>
         <p><strong>Liquidity reality.</strong> The canonical GME/USDG venue's depth is shown live
         above, read from the pool itself. Measured on-chain, a $500,000 routed buy moves the pair leg
-        about 0.48% — the pool is thinner than some, but its liquidity is well concentrated.
+        about 0.48%. The pool is thinner than some, but its liquidity is well concentrated.
         Slippage limits are conservative by default and the router enforces a minimum output you set:
         it reverts rather than filling you at a bad price.</p>
       </div>
@@ -331,7 +331,7 @@
 
       <div class="gauge" data-reveal>
         <div class="gauge-head">
-          <div class="gauge-value">—<span class="unit">/ 100</span></div>
+          <div class="gauge-value">n/a<span class="unit">/ 100</span></div>
           <button class="info" aria-label="How the Pressure Score is calculated">i
             <span>
               A deterministic function of Robinsqueeze protocol activity only, v1:<br><br>
@@ -366,7 +366,7 @@
         <p style="margin-top: 18px; opacity: 0.62; max-width: 58ch;">
           Canonical assets below were each verified to have deployed bytecode, and their
           decimals and symbols read directly from the chain. Protocol contracts appear here
-          once deployed — never before.
+          once deployed, never before.
         </p>
       </div>
 
@@ -421,11 +421,11 @@
       <div class="faq-list" data-reveal>
         <div class="faq-item open">
           <button class="faq-q">Does buying RSQ squeeze GameStop's stock?<span class="plus"></span></button>
-          <div class="faq-a"><div><p>No, and we make no such claim. A routed buy acquires GME Stock Tokens on Robinhood Chain. That is an on-chain purchase of a tokenized instrument — it is not a trade in GameStop's publicly listed equity, does not affect its float or short interest, and should not be expected to move it.</p></div></div>
+          <div class="faq-a"><div><p>No, and we make no such claim. A routed buy acquires GME Stock Tokens on Robinhood Chain. That is an on-chain purchase of a tokenized instrument. It is not a trade in GameStop's publicly listed equity, does not affect its float or short interest, and should not be expected to move it.</p></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-q">Can someone buy RSQ without triggering the mechanism?<span class="plus"></span></button>
-          <div class="faq-a"><div><p>Yes. RSQ has no transfer tax, so anyone can swap against a pool directly and acquire no GME at all. That is a deliberate design choice — transfer taxes break AMM accounting and are a common rug vector. The guarantee applies to purchases made through the official Paired Buy Router, and only those.</p></div></div>
+          <div class="faq-a"><div><p>Yes. RSQ has no transfer tax, so anyone can swap against a pool directly and acquire no GME at all. That is a deliberate design choice: transfer taxes break AMM accounting and are a common rug vector. The guarantee applies to purchases made through the official Paired Buy Router, and only those.</p></div></div>
         </div>
         <div class="faq-item">
           <button class="faq-q">Can the team change the 90/8/2 split?<span class="plus"></span></button>
@@ -460,7 +460,7 @@
         No contracts are deployed. There is no RSQ market, no token sale, and no address to
         send funds to. Anyone telling you otherwise is not us.
       </p>
-      <a class="btn" href="#" data-cursor-label="Not yet deployed">Follow for deployment</a>
+      <a class="btn" href="#" data-cursor-label="Coming soon">Follow for launch</a>
     </div>
   </section>
 
@@ -507,7 +507,7 @@
 <section class="underlay" aria-hidden="true">
   <p class="underlay-note">Every routed buy acquires GME.</p>
   <div class="underlay-chips">
-    <span id="u-date">—</span><span>Robinhood Chain</span><span>4663</span>
+    <span id="u-date">…</span><span>Robinhood Chain</span><span>4663</span>
   </div>
   <div class="underlay-mark">Robinsqueeze</div>
 </section>

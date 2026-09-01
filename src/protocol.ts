@@ -250,7 +250,7 @@ export async function resolvePhase(amountIn: bigint): Promise<TxPhase> {
 export const PHASE_LABEL: Record<TxPhase, string> = {
   disconnected: "Connect wallet",
   wrongNetwork: "Switch to Robinhood Chain",
-  notDeployed: "Not deployed yet",
+  notDeployed: "Launching soon",
   enterAmount: "Enter an amount",
   insufficientBalance: "Insufficient USDG",
   needsApproval: "Approve USDG",
