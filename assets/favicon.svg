@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Robinsqueeze">
+  <!--
+    The Robinsqueeze mark, folded: two wedges meeting apex-to-apex to form an
+    hourglass. Same glyph the intro unfolds into  |> Robinsqueeze <|  and the
+    same shape the two hero wedges make when they fold.
+
+    Drawn as vectors rather than shipped as a PNG so it stays sharp at 16px in
+    a browser tab and at 512px on a home screen, from one 500-byte file.
+  -->
+  <rect width="64" height="64" rx="14" fill="#0e1210"/>
+  <path d="M17 17 H47 L32 32 Z" fill="#ffffff"/>
+  <path d="M32 32 L47 47 H17 Z" fill="#ffffff"/>
+</svg>

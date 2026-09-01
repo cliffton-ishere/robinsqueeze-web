@@ -1,0 +1,1268 @@
+/* ================================================================
+   app.css — components. Reads every value from tokens.css.
+
+   Order of business:
+     1. Reset + base
+     2. Layout primitives (grid, section, media card)
+     3. Film grain overlay
+     4. Custom cursor
+     5. Preloader
+     6. Header pill + panel
+     7. Scroll rail
+     8. Hero
+     9. Statement + rotating brand slot
+    10. Feature cards
+    11. Pinned curtain reveal
+    12. Pinned horizontal scrub carousel
+    13. Logo marquee
+    14. FAQ
+    15. CTA band
+    16. Footer + page contraction
+    17. Reveal-on-scroll + reduced motion
+   ================================================================ */
+
+/* ================= 1. Reset + base ================= */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+/* only used while the intro is running */
+html.lock { overflow: hidden; }
+
+body {
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--ink);
+  /* this is the overscroll / notch colour — keep it matching the page */
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* clip, NOT hidden: hidden turns body into a scroll container and
+     silently breaks every position:sticky on the page */
+  overflow-x: clip;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; }
+img, video, svg { display: block; max-width: 100%; }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+h1, h2, h3 { font-weight: 500; letter-spacing: var(--ls-tight); line-height: 1.05; }
+
+/* visible to screen readers only — used where a decorative animated
+   element (the rotating slot) replaces a word the sentence still needs */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* media is decorative — never draggable or long-press-saveable */
+img, video, svg {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ================= 2. Layout primitives ================= */
+.page {
+  position: relative;
+  z-index: var(--z-page);
+  background: var(--white);
+  /* the bottom edge is always rounded — it rides over the footer underlay */
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+  /* --sq is driven by js as the page contracts at the footer; padding
+     travels with the clipped edge so content is squeezed, not cropped */
+  --sq: 0px;
+}
+
+.wrap {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: var(--gutter);
+  padding-inline: calc(var(--margin) + var(--sq));
+  width: 100%;
+}
+
+section { position: relative; }
+
+.section-pad { padding-block: clamp(90px, 13vh, 170px); }
+
+/* the small label that sits above a heading */
+.eyebrow {
+  display: inline-block;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  letter-spacing: var(--ls-normal);
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  color: var(--ink);
+}
+
+/* full-bleed media inset by --bleed, the site's recurring "card" */
+.media-card {
+  margin-inline: calc(var(--bleed) + var(--sq));
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  position: relative;
+}
+.media-card > img,
+.media-card > video { width: 100%; height: 100%; object-fit: cover; }
+
+/* a plain button, pill-shaped */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  background: var(--ink);
+  color: var(--white);
+  transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.btn:hover { opacity: 0.82; }
+.btn:active { transform: scale(0.97); }
+.btn.ghost { background: var(--card); color: var(--ink); }
+.btn.accent { background: var(--accent); color: var(--accent-ink); }
+
+/* ================= 3. Film grain ================= */
+/* A fixed, non-interactive noise sheet over the whole page. This is the
+   single cheapest thing you can do to make flat CSS and AI-generated
+   imagery sit in the same world — it unifies their surfaces.
+   Rendered from feTurbulence as a data URI, so: no asset request. */
+.grain {
+  position: fixed;
+  inset: -50%;              /* oversized so the drift never shows an edge */
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: 0.22;            /* 0.12 subtle - 0.22 default - 0.4 heavy */
+  mix-blend-mode: overlay;  /* try soft-light for a gentler dirt */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  /* stepped, not smooth: real film grain jumps frame to frame */
+  animation: grainDrift 0.7s steps(6) infinite;
+  will-change: transform;
+}
+@keyframes grainDrift {
+  0%   { transform: translate(0, 0); }
+  16%  { transform: translate(-3%, 2%); }
+  33%  { transform: translate(2%, -4%); }
+  50%  { transform: translate(-4%, -2%); }
+  66%  { transform: translate(3%, 3%); }
+  83%  { transform: translate(-2%, 4%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ================= 4. Custom cursor =================
+   A white disc blended with `difference`, so it reads black on light
+   surfaces and white on dark ones — one element, correct everywhere,
+   no per-section theming. Fine pointers only; touch keeps its native
+   (absent) cursor. */
+@media (pointer: fine) {
+  /* A transparent 1x1 PNG comes first: Safari intermittently ignores a
+     bare `cursor: none` but always honours an image cursor. */
+  html.has-cursor-dot,
+  html.has-cursor-dot * {
+    cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=") 0 0, none !important;
+  }
+
+  .cursor-dot {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: var(--z-cursor);
+    pointer-events: none;
+    /* blend on the MOVING wrapper itself. A transformed parent would
+       isolate the stacking context and kill the inversion. */
+    mix-blend-mode: difference;
+  }
+  /* the size lives on the inner <i> so the wrapper's transform stays
+     purely positional — transitions on width never fight the rAF loop */
+  .cursor-dot i {
+    position: absolute;
+    top: 0; left: 0;
+    translate: -50% -50%;
+    display: block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    transition: width var(--t-fast) var(--ease),
+                height var(--t-fast) var(--ease),
+                opacity 0.2s var(--ease);
+  }
+  .cursor-dot.on i { opacity: 1; }
+  .cursor-dot.grow i { width: 44px; height: 44px; }
+  /* the big labelled disc. Declared AFTER .grow at equal specificity so
+     it wins on elements that are both hoverable and gated. */
+  .cursor-dot.gate i { width: 136px; height: 136px; }
+
+  /* The label rides in its OWN fixed layer, never inside .cursor-dot:
+     white content inside a difference-blended element composites to the
+     same white and comes out invisible. Kept as a SIBLING (never sharing
+     a transformed parent, which would isolate the blend) and handed the
+     exact same transform every frame. */
+  .cursor-tag {
+    position: fixed;
+    top: 0; left: 0;
+    z-index: var(--z-cursor-tag);
+    pointer-events: none;
+  }
+  .cursor-tag > span {
+    position: absolute;
+    top: 0; left: 0;
+    translate: -50% -50%;
+    display: grid;
+    justify-items: center;
+    row-gap: 7px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: var(--ls-normal);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+  }
+  .cursor-tag > span svg { width: 20px; height: 20px; }
+  .cursor-tag.gate > span { opacity: 1; }
+}
+
+/* ================= 5. Preloader =================
+   The wordmark is  < Brand >  — two chevrons framing the name.
+   Stage 0 (rest)    the chevrons are rotated 135deg and overlapped into
+                     a single folded diamond; no text.
+   Stage 1 (.spin)   they rotate upright.
+   Stage 2 (.unfold) they spread to EXACTLY the hero bracket positions
+                     while the name reveals between them.
+   Stage 3 (.swipe)  the dark cover wipes away right-to-left, unveiling
+                     the hero — whose own chevrons are already sitting
+                     precisely under the preloader's. That is the trick:
+                     nothing animates into place, the cover just leaves.
+
+   Both use --hero-span and --mark-h from tokens.css, which is what
+   keeps the hand-off pixel-exact at every viewport width. */
+
+/* the wordmark itself, shared by preloader and hero */
+.wordmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4.2vw, 96px);
+  font-size: var(--fs-wordmark);
+  font-weight: 500;
+  letter-spacing: var(--ls-display);
+  line-height: 1;
+  white-space: nowrap;
+}
+.wordmark .bracket { height: 0.58em; width: auto; flex: 0 0 auto; }
+.bracket.flip { transform: scaleX(-1); }
+/* the 0fr -> 1fr grid trick: animates an element's width from nothing to
+   its intrinsic size, which plain width/max-width cannot do */
+.wm-word { display: grid; grid-template-columns: 1fr; }
+.wm-word i {
+  font-style: normal;
+  min-width: 0;
+  overflow: hidden;        /* clips horizontally for the reveal */
+  padding-block: 0.2em;    /* room so ascenders are not clipped */
+  margin-block: -0.2em;    /* cancel that padding in layout */
+}
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-preloader);
+  display: grid;
+  place-items: center;
+}
+.pre-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--ink);
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 0.75s var(--ease-wipe);
+}
+.preloader .pre-mark { position: relative; z-index: 1; }
+
+.pre-pct {
+  position: absolute;
+  z-index: 1;
+  right: var(--margin);
+  bottom: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #fff;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.35s var(--ease);
+}
+.pre-spin { width: 15px; height: 15px; animation: preSpin 0.9s linear infinite; }
+@keyframes preSpin { to { rotate: 360deg; } }
+
+.pre-mark {
+  --bh: var(--mark-h);
+  color: #fff;
+  font-size: var(--fs-wordmark);
+  width: var(--bh);      /* folded: tight, the chevrons overlap */
+  /* gap MUST be 0 here. The folded offsets below have to cancel the
+     chevrons' flex separation, and a gap in em would make that separation
+     scale on a different curve from --bh (they are clamps with different
+     breakpoints) — so the diamond would drift open at some widths. */
+  gap: 0;
+  transition: width var(--t-slow) var(--ease), gap var(--t-slow) var(--ease);
+}
+.pre-mark .bracket {
+  height: var(--bh);
+  /* 90deg, not 135. This glyph's two arms sit at +/-45deg to each other, so
+     the fold's orientation is decided by the rotation: odd multiples of 90
+     put the arms on the diagonals and the mark assembles into a DIAMOND;
+     45 or 135 lands them axis-aligned and you get a square instead. Both
+     are closed and correct — this is purely which mark you want. */
+  rotate: 90deg;
+  /* The folded HOURGLASS.
+
+     The mark is two solid wedges that press inward: |> Robinsqueeze <|.
+     Folded, they rotate a quarter turn and meet apex-to-apex, forming an
+     hourglass - the protocol's symbol, and the same choreography as the
+     template's mark.
+
+     Derivation. Each wedge is w x h with its base on one vertical edge and
+     its apex on the opposite one, so the apex sits at (+w/2, 0) from centre.
+     Rotating 90deg maps (x, y) -> (-y, x), putting one apex at (0, +w/2)
+     pointing down and the mirrored one at (0, -w/2) pointing up. For those
+     apexes to coincide the wedges must end up (0, w) apart, and the flex row
+     already places them (w, 0) apart, so each carries half the correction:
+
+         t = (w/2, -w/2)  and  w = 0.5517h   =>   t = (0.276h, -0.276h)
+
+     `translate` is applied BEFORE `rotate`, so these are plain screen-space
+     offsets. The flex gap must stay 0 or the correction is wrong. */
+  translate: calc(var(--bh) * 0.276) calc(var(--bh) * -0.276);
+  transition: rotate 0.8s var(--ease), translate 0.8s var(--ease);
+}
+.pre-mark .bracket.flip { translate: calc(var(--bh) * -0.276) calc(var(--bh) * 0.276); }
+.preloader.spin .pre-mark .bracket { rotate: 0deg; translate: 0 0; }
+
+.pre-mark .wm-word {
+  grid-template-columns: 0fr;
+  opacity: 0;
+  transition: grid-template-columns var(--t-slow) var(--ease), opacity 0.5s var(--ease);
+}
+.preloader.unfold .pre-mark { width: var(--hero-span); justify-content: space-between; gap: 0; }
+.preloader.unfold .pre-mark .wm-word { grid-template-columns: 1fr; opacity: 1; }
+
+.preloader.swipe { pointer-events: none; }
+.preloader.swipe .pre-cover { clip-path: inset(0 100% 0 0); }
+.preloader.swipe .pre-mark .wm-word { opacity: 0; }
+.preloader.swipe .pre-pct { opacity: 0; }
+.preloader.gone { display: none; }
+
+/* returning visitors skip the intro entirely — set before first paint by
+   the inline script in <head>, so it can never flash */
+html.intro-seen .preloader { display: none; }
+
+/* ---------- First-paint hold ----------
+   html.pg-hold is added by an inline script before ANY paint and removed
+   on load. It stops the page flashing its unstyled/unpositioned self for
+   a frame before the intro takes over. */
+html.pg-hold .page,
+html.pg-hold .site-header,
+html.pg-hold .rail { opacity: 0; }
+.page, .site-header, .rail { transition: opacity 0.5s var(--ease); }
+
+/* ================= 6. Header pill ================= */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: var(--z-header);
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  padding-inline: var(--bleed);
+  pointer-events: none;   /* only the pill itself is clickable */
+}
+.pill {
+  position: relative;
+  pointer-events: auto;
+  width: min(420px, 100%);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+
+  /* ---------- Glass ----------
+     Four layers make this read as a physical pane rather than a flat
+     translucent rectangle, and each does a specific job:
+
+       1. a translucent fill, so what is behind it genuinely shows through
+       2. backdrop blur + saturate — the saturate is what stops blurred
+          content going grey and muddy, and it is most of the "glossy"
+       3. a 1px inset highlight along the TOP edge and a fainter one along
+          the bottom: this is the lit rim of a real bevel, and without it
+          glass reads as fog
+       4. a two-part outer shadow — one tight and one wide — so the pill
+          sits above the page instead of being printed on it
+
+     Saturation is deliberately high because this pill floats over a very
+     green hero; a neutral blur would drain the colour right under it. */
+  /* 0.72, not lower: the pill floats over a very dark hero, and below
+     about 0.68 the near-black wordmark loses contrast against the glass. */
+  background: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(26px) saturate(190%);
+  backdrop-filter: blur(26px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.28),
+    0 2px 8px rgba(5, 19, 11, 0.10),
+    0 14px 44px rgba(5, 19, 11, 0.16);
+
+  transition: width var(--t-mid) var(--ease), border-radius var(--t-mid) var(--ease),
+              background var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease);
+}
+
+/* The specular sweep: a soft diagonal band of light across the top-left,
+   fading out before the midpoint. This is the single detail that separates
+   "glass" from "semi-transparent div" — real glass catches one light
+   source, so the highlight must be off-centre and must not wrap. */
+.pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    148deg,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.34) 26%,
+    rgba(255, 255, 255, 0) 52%
+  );
+}
+
+/* the bar and drawer ride ABOVE the sheen */
+.pill-bar,
+.pill-panel { position: relative; z-index: 1; }
+
+/* opening the drawer puts a lot of content behind the glass, so the fill
+   firms up to keep the nav legible */
+.pill.open {
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 2px 8px rgba(5, 19, 11, 0.12),
+    0 26px 70px rgba(5, 19, 11, 0.26);
+}
+
+/* Fallback: without backdrop-filter the translucent fill would just look
+   washed out, so go opaque instead. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .pill { background: rgba(255, 255, 255, 0.96); }
+}
+.pill-bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+}
+.pill-logo {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--ink);
+  color: #fff;
+  /* same bevel logic as the pill, one order of magnitude smaller */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 1px 3px rgba(5, 19, 11, 0.28);
+  transition: transform var(--t-fast) var(--ease);
+}
+.pill-logo:hover { transform: scale(1.05); }
+.pill-logo svg { width: 20px; height: 20px; }
+.pill-name { text-align: center; font-weight: 500; font-size: var(--fs-meta); }
+.pill-toggle {
+  display: grid;
+  gap: 5px;
+  width: 40px; height: 40px;
+  place-content: center;
+  cursor: pointer;
+}
+.pill-toggle span {
+  display: block;
+  width: 18px; height: 1.5px;
+  background: var(--ink);
+  transition: transform var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease);
+}
+.pill.open .pill-toggle span:first-child { transform: translateY(3.25px) rotate(45deg); }
+.pill.open .pill-toggle span:last-child { transform: translateY(-3.25px) rotate(-45deg); }
+
+/* the drawer: grid-template-rows 0fr -> 1fr animates to intrinsic height
+   without ever needing a hard-coded max-height */
+.pill-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--t-mid) var(--ease);
+}
+.pill.open .pill-panel { grid-template-rows: 1fr; }
+.pill-panel > div { overflow: hidden; }
+.panel-inner { padding: 6px 12px 14px; }
+.panel-media {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  background: var(--card);
+  margin-bottom: 12px;
+}
+.panel-media video, .panel-media img { width: 100%; height: 100%; object-fit: cover; }
+.panel-nav { display: grid; }
+.panel-nav a {
+  padding: 11px 8px;
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  border-top: 1px solid var(--grey);
+  transition: opacity var(--t-fast) var(--ease);
+}
+.panel-nav a:hover { opacity: 0.55; }
+.panel-meta {
+  display: flex;
+  gap: 16px;
+  padding-top: 12px;
+  font-size: var(--fs-meta);
+  opacity: 0.55;
+}
+
+/* the dim sheet behind an open menu. Scrolling is blocked in js by
+   swallowing wheel/touchmove, NOT by overflow:hidden — flipping overflow
+   on the scroll container re-resolves every position:sticky on the page
+   and makes pinned sections jump the moment the menu opens. */
+.pill-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-scrim);
+  background: rgba(20, 20, 20, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  touch-action: none;
+  transition: opacity 0.4s var(--ease), visibility 0s linear 0.4s;
+}
+html.menu-open .pill-scrim {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s var(--ease), visibility 0s linear 0s;
+}
+
+/* ================= 7. Scroll rail ================= */
+.rail {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: var(--z-rail);
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 10px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+.rail i {
+  display: block;
+  width: 2px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgba(20, 20, 20, 0.3);
+  transition: height var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.rail i.on { height: 18px; background: var(--ink); }
+@media (max-width: 900px) { .rail { display: none; } }
+
+/* ================= 8. Hero ================= */
+.hero {
+  /* --p: 0 -> 1 tucks the media into a rounded inset card on scroll */
+  --p: 0;
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  color: #fff;
+}
+.hero-media {
+  position: absolute;
+  top: calc(var(--p) * var(--bleed));
+  left: calc(var(--p) * var(--bleed));
+  width: calc(100% - 2 * var(--p) * var(--bleed));
+  /* the bottom edge lifts 20px past the bleed so the card clears the fold */
+  height: calc(100% - var(--p) * (2 * var(--bleed) + 20px));
+  object-fit: cover;
+  border-radius: calc(var(--p) * var(--r-lg));
+  /* Shipped placeholder: a green-forward horizon that matches the brand
+     while real art is produced. Replace this whole element with a
+     <video class="hero-media"> or <img class="hero-media">. */
+  background:
+    radial-gradient(46% 13% at 50% 59%, rgba(214, 245, 219, 0.55), transparent 76%),
+    linear-gradient(180deg,
+      #05130b 0%, #0b2e18 30%, #124a24 50%, #1c6b32 57%, #7dbb8b 59.5%,
+      #23682f 61%, #164c22 80%, #08240f 100%);
+}
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* the open central band the chevrons sit in */
+  gap: clamp(200px, 34vh, 420px);
+  text-align: center;
+  padding-inline: var(--margin);
+}
+.hero-line {
+  font-size: var(--fs-display);
+  font-weight: 500;
+  letter-spacing: var(--ls-display);
+  line-height: 1;
+  /* delayed so the rise lands as the preloader wipes away */
+  animation: heroRise 1.2s var(--ease) 4.35s both;
+}
+.hero-line:last-child { animation-delay: 4.55s; }
+html.intro-seen .hero-line { animation-delay: 0.15s; }
+html.intro-seen .hero-line:last-child { animation-delay: 0.35s; }
+@keyframes heroRise {
+  from { opacity: 0; transform: translateY(36px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* the chevrons, pinned to the viewport centre at the span's edges —
+   they land exactly where the preloader's already are */
+.hero-brackets {
+  position: absolute;
+  z-index: 1;
+  top: 50%; left: 50%;
+  width: var(--hero-span);
+  translate: -50% -50%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.hero-brackets .bracket { height: var(--mark-h); }
+
+/* the invisible hover band between the chevrons. Everything here is
+   additive and off by default, so the resting position — and with it the
+   preloader hand-off — is untouched. The nudge rides on `translate`, NOT
+   `transform`, because .bracket.flip already spends transform on
+   scaleX(-1), and translate is applied first. */
+.hero-gate { display: none; }
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+  .hero-gate {
+    display: block;
+    position: absolute;
+    z-index: 2;
+    top: 50%; left: 50%;
+    translate: -50% -50%;
+    width: var(--hero-span);
+    height: var(--mark-h);
+  }
+  .hero-brackets .bracket { transition: translate var(--t-mid) var(--ease); }
+  .hero.gate-on .hero-brackets .bracket { translate: calc(clamp(10px, 1.4vw, 26px) * -1) 0; }
+  .hero.gate-on .hero-brackets .bracket.flip { translate: clamp(10px, 1.4vw, 26px) 0; }
+}
+
+.hero-foot {
+  position: absolute;
+  z-index: 1;
+  left: 0; right: 0;
+  bottom: 30px;
+  /* gone by --p 0.4 — the tucking card edge only reaches this line at 0.5 */
+  opacity: clamp(0, calc(1 - var(--p) * 2.5), 1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-inline: var(--margin);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+.hero-foot a { display: inline-flex; align-items: center; gap: 7px; }
+.scroll-arrow { width: 15px; height: 15px; animation: nudge 2.2s ease-in-out infinite; }
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+
+/* ================= 9. Statement + rotating slot ================= */
+.statement { padding-block: clamp(90px, 13vh, 170px) 0; }
+.statement-text {
+  grid-column: 1 / 7;
+  font-size: var(--fs-statement);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  line-height: 1.16;
+}
+/* the brand slot — one name at a time between two small chevrons.
+   Everything is sized in em so it tracks the clamped statement type. */
+.slot {
+  --brk-h: 0.713em;
+  --brk-w: calc(var(--brk-h) * 0.5517);   /* the glyph is 192 x 348 */
+  --brk-gap: 0.24em;
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+.slot .bracket { height: var(--brk-h); width: var(--brk-w); opacity: 0.45; }
+.slot-window {
+  display: inline-grid;
+  place-items: center;
+  padding-inline: var(--brk-gap);
+  /* width animates to whichever name is showing */
+  transition: width var(--t-mid) var(--ease);
+}
+.slot-item {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  opacity: 0;
+  transform: translateY(0.35em);
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+}
+.slot-item.on { opacity: 1; transform: none; }
+.slot-item svg, .slot-item img { height: 0.82em; width: auto; }
+
+/* ================= 10. Feature cards ================= */
+.features { display: grid; gap: var(--gutter); grid-column: 1 / -1; }
+@media (min-width: 901px) { .features { grid-template-columns: repeat(2, 1fr); } }
+.feature-card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  padding: 26px 26px 0;
+  overflow: hidden;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+.feature-card h3 { font-size: var(--fs-h3); }
+.feature-card p { opacity: 0.62; max-width: 46ch; }
+.feature-card .shot {
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(150deg, var(--accent), #2f6fd0);
+  margin-top: 4px;
+}
+
+/* ================= 11. Pinned curtain reveal =================
+   The section above squeezes and lifts away like a curtain while a
+   sticky panel holds at screen centre. The scroll room is the
+   ::after block, so no js measures anything to create the distance. */
+.curtain-sec { background: var(--ink-2); color: #fff; }
+.curtain-sec::after { content: ""; display: block; height: 180vh; }
+.curtain-pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.curtain-title {
+  /* --ty is driven by js: the px shift from resting spot to screen centre */
+  --ty: 0px;
+  position: relative;
+  z-index: 2;
+  transform: translateY(var(--ty));
+  font-size: var(--fs-h2);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  text-align: center;
+  max-width: 18ch;
+  padding-inline: var(--margin);
+}
+.curtain-panel {
+  /* --cy: rises from below the fold, OVER the held title */
+  --cy: 60vh;
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  translate: -50% 0;
+  transform: translateY(var(--cy));
+  width: min(980px, calc(100vw - 2 * var(--margin)));
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-lg);
+  background: #0d0d0d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.panel-chrome {
+  display: flex;
+  gap: 6px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+.panel-chrome i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, 0.22); }
+.panel-body {
+  padding: 20px 22px;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  color: rgba(255, 255, 255, 0.72);
+}
+.panel-body b { color: var(--accent); font-weight: 400; }
+
+/* ================= 12. Pinned horizontal scrub ================= */
+.scrub-sec { background: var(--white); }
+/* the scroll room the sweep is spread across. js reads this height. */
+.scrub-sec::after { content: ""; display: block; height: 125vh; }
+.scrub-group {
+  /* --gtop is set by js: the offset that centres the group vertically */
+  --gtop: 0px;
+  position: sticky;
+  top: var(--gtop);
+}
+.scrub-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  padding-inline: var(--margin);
+  margin-bottom: 22px;
+}
+.scrub-head h2 { font-size: var(--fs-h2); max-width: 14ch; }
+.scrub-tabs {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  opacity: 0;
+  transition: opacity var(--t-mid) var(--ease);
+}
+.scrub-tabs.show { opacity: 1; }
+/* one sliding pill instead of each tab flashing its own background */
+.scrub-tab-pill {
+  position: absolute;
+  top: 4px; left: 0;
+  height: calc(100% - 8px);
+  border-radius: var(--r-pill);
+  background: var(--white);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: transform var(--t-mid) var(--ease), width var(--t-mid) var(--ease);
+}
+.scrub-tab {
+  position: relative;
+  z-index: 1;
+  padding: 9px 18px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity var(--t-fast) var(--ease);
+}
+.scrub-tab.active { opacity: 1; }
+.scrub-track {
+  display: flex;
+  gap: var(--gutter);
+  padding-inline: var(--margin);
+  overflow-x: auto;
+  scrollbar-width: none;
+  /* desktop is scroll-jacked by js; touch swipes this natively */
+  scroll-snap-type: x mandatory;
+}
+.scrub-track::-webkit-scrollbar { display: none; }
+.scrub-card {
+  flex: 0 0 min(560px, 78vw);
+  scroll-snap-align: center;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  position: relative;
+  background: var(--card);
+  display: grid;
+  align-content: end;
+  padding: 24px;
+  color: #fff;
+}
+.scrub-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 40%, rgba(0, 0, 0, 0.6));
+  z-index: 1;
+}
+.scrub-card > * { position: relative; z-index: 2; }
+.scrub-card h3 { font-size: var(--fs-h3); }
+.scrub-card p { opacity: 0.8; max-width: 34ch; }
+.scrub-card .bg { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ================= 13. Logo marquee =================
+   Pure CSS. A js-driven version (scrollLeft, or a seekable Web
+   Animation for swiping) stutters and makes masked logos flicker on
+   iOS every time the rate changes. The plain compositor animation is
+   the one thing that stays perfectly smooth. */
+.marquee { overflow: hidden; padding-block: 40px; -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.marquee-track { display: flex; gap: var(--gutter); width: max-content; animation: marquee 38s linear infinite; }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+.chip {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  width: 172px;
+  aspect-ratio: 1;
+  border-radius: var(--r-md);
+  background: var(--card);
+  font-size: var(--fs-meta);
+  font-weight: 500;
+  opacity: 0.75;
+  transition: opacity var(--t-fast) var(--ease), background var(--t-fast) var(--ease);
+}
+.chip:hover { opacity: 1; background: var(--grey); }
+.chip .mark { width: 40px; height: 40px; border-radius: 10px; background: currentColor; opacity: 0.25; }
+
+/* ================= 14. FAQ ================= */
+.faq-list { grid-column: 1 / -1; border-top: 1px solid var(--grey); }
+.faq-item { border-bottom: 1px solid var(--grey); }
+.faq-q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 26px 0;
+  text-align: left;
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  cursor: pointer;
+}
+.faq-q .plus { position: relative; width: 16px; height: 16px; flex: 0 0 auto; }
+.faq-q .plus::before, .faq-q .plus::after {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1.5px;
+  background: currentColor;
+  transition: transform var(--t-fast) var(--ease);
+}
+.faq-q .plus::after { transform: rotate(90deg); }
+.faq-item.open .plus::after { transform: rotate(0deg); }
+/* same 0fr -> 1fr trick: animates to intrinsic height, no max-height guess */
+.faq-a { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--t-mid) var(--ease); }
+.faq-item.open .faq-a { grid-template-rows: 1fr; }
+.faq-a > div { overflow: hidden; }
+.faq-a p { padding-bottom: 26px; max-width: 62ch; opacity: 0.62; }
+
+/* ================= 15. CTA band ================= */
+.band {
+  margin-inline: calc(var(--bleed) + var(--sq));
+  border-radius: var(--r-lg);
+  background: var(--ink);
+  color: #fff;
+  padding: clamp(60px, 10vw, 130px) var(--margin);
+  display: grid;
+  justify-items: center;
+  gap: 26px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+.band h2 { font-size: var(--fs-h2); max-width: 16ch; }
+.band .btn { background: var(--white); color: var(--ink); }
+
+/* ================= 16. Footer + page contraction ================= */
+.footer { padding: clamp(60px, 8vw, 110px) 0 40px; }
+.footer-cols { grid-column: 1 / -1; display: grid; gap: 30px; grid-template-columns: repeat(2, 1fr); }
+@media (min-width: 901px) { .footer-cols { grid-template-columns: 2fr repeat(3, 1fr); } }
+.footer-cols h4 { font-size: var(--fs-meta); font-weight: 500; opacity: 0.45; margin-bottom: 14px; }
+.footer-cols a { display: block; padding: 4px 0; font-size: var(--fs-meta); transition: opacity var(--t-fast) var(--ease); }
+.footer-cols a:hover { opacity: 0.5; }
+.footer-legal {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 50px;
+  font-size: var(--fs-meta);
+  opacity: 0.45;
+}
+
+/* the fixed underlay revealed as .page contracts away from it */
+.underlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 30px;
+  overflow: hidden;
+  background: linear-gradient(#0a3d1c, #2fa843 58%, #a8e8ae);
+  visibility: hidden;
+}
+.underlay.near { visibility: visible; }
+.underlay-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.underlay-chips span {
+  padding: 8px 16px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: var(--fs-meta);
+  font-weight: 500;
+}
+.underlay-note { color: #fff; font-size: var(--fs-meta); font-weight: 500; opacity: 0.9; }
+.underlay-mark {
+  font-size: clamp(90px, 19vw, 320px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  color: #fff;
+}
+
+/* ================= 17. Reveal on scroll ================= */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+[data-reveal].is-in { opacity: 1; transform: none; }
+/* stagger children by declaring --i on each */
+[data-reveal-stagger] > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms);
+}
+[data-reveal-stagger].is-in > * { opacity: 1; transform: none; }
+
+/* ================= Responsive ================= */
+@media (max-width: 900px) {
+  :root { --margin: 20px; --bleed: 16px; --cols: 4; }
+  .statement-text { grid-column: 1 / -1; }
+  .scrub-head { flex-direction: column; align-items: flex-start; }
+  .hero-foot { align-items: flex-end; }
+}
+
+/* ================= Reduced motion ================= */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .grain { animation: none; }
+  [data-reveal], [data-reveal-stagger] > * { opacity: 1; transform: none; }
+}
+
+/* ================================================================
+   PROTOCOL COMPONENTS — Robinsqueeze
+   Added on top of the template's system. Every one of these reads its
+   colours, radii and easing from tokens.css; none introduces a new
+   visual language.
+   ================================================================ */
+
+/* ---------- Honest state pill ----------
+   The brief forbids fake live values. Until contracts are deployed and
+   indexed, every figure renders one of these instead of a number. The
+   pill is deliberately plain: it must never be mistakable for data. */
+.state {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  letter-spacing: var(--ls-normal);
+  background: var(--card);
+  color: var(--neutral);
+  white-space: nowrap;
+}
+.state::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+.state.is-live { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-dim); }
+.state.is-live::before { animation: statePulse 2s ease-in-out infinite; }
+.state.is-warn { background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--warn); }
+.state.is-danger { background: color-mix(in srgb, var(--danger) 14%, transparent); color: var(--danger); }
+@keyframes statePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* ---------- Stat tile ---------- */
+.stats {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--gutter);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.stat {
+  background: var(--card);
+  border-radius: var(--r-md);
+  padding: 20px 22px 22px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+.stat dt {
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  color: var(--neutral);
+  letter-spacing: var(--ls-normal);
+}
+.stat dd {
+  font-size: clamp(24px, 2.4vw, 34px);
+  font-weight: 500;
+  letter-spacing: var(--ls-tight);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat .sub { font-size: var(--fs-micro); color: var(--neutral); }
+
+/* ---------- Allocation bar — the 90/8/2 split, made visible ----------
+   This is the protocol's central promise, so it gets a dedicated
+   component rather than three numbers in a row. The widths are set from
+   the SAME basis points the contract uses. */
+.alloc { grid-column: 1 / -1; display: grid; gap: 14px; }
+.alloc-bar {
+  display: flex;
+  height: 46px;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--card);
+}
+.alloc-seg {
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-micro);
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  /* min-width:0 is load-bearing. A flex item's automatic minimum size is its
+     content, so the "8%" and "2%" labels would floor those segments and the
+     bar would render 89.5 / 7.9 / 2.6 — a component whose whole job is to
+     show the split honestly must be pixel-proportional to the basis points.
+     overflow:hidden then keeps the labels from spilling once they no longer
+     fit their own segment. */
+  min-width: 0;
+  overflow: hidden;
+  transition: filter var(--t-fast) var(--ease);
+}
+.alloc-seg:hover { filter: brightness(1.12); }
+.alloc-seg.rsq { flex: 9000; background: var(--accent); color: var(--accent-ink); }
+.alloc-seg.pair { flex: 800; background: var(--ink); }
+.alloc-seg.liq { flex: 200; background: var(--neutral); }
+.alloc-key { display: flex; flex-wrap: wrap; gap: 18px; font-size: var(--fs-meta); }
+.alloc-key span { display: inline-flex; align-items: center; gap: 8px; }
+.alloc-key i { width: 10px; height: 10px; border-radius: 3px; flex: 0 0 auto; }
+
+/* ---------- Pressure gauge ----------
+   A deterministic protocol metric, never a prediction. The track is
+   drawn but the fill stays at zero until real indexed data exists. */
+.gauge { display: grid; gap: 12px; grid-column: 1 / -1; max-width: 640px; }
+.gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  overflow: hidden;
+}
+.gauge-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 1s var(--ease);
+}
+.gauge-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.gauge-value { font-size: clamp(38px, 5vw, 64px); font-weight: 500; letter-spacing: var(--ls-tight); font-variant-numeric: tabular-nums; }
+.gauge-value .unit { font-size: 0.4em; color: var(--neutral); margin-left: 4px; }
+
+/* the tooltip explaining the inputs — required, not optional */
+.info {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  border: 1px solid var(--neutral);
+  color: var(--neutral);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: help;
+}
+.info > span {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  translate: -50% 0;
+  width: min(320px, 74vw);
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--ink);
+  color: #fff;
+  font-size: var(--fs-micro);
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t-fast) var(--ease), visibility 0s linear var(--t-fast);
+  z-index: 40;
+}
+.info:hover > span, .info:focus-visible > span {
+  opacity: 1; visibility: visible;
+  transition: opacity var(--t-fast) var(--ease), visibility 0s linear 0s;
+}
+
+/* ---------- Disclosure block ----------
+   Legal and product-honesty copy. Quiet, but never hidden: it sits in
+   normal flow at full width, not behind a toggle. */
+.disclosure {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--grey);
+  padding-top: 22px;
+  display: grid;
+  gap: 12px;
+  font-size: var(--fs-micro);
+  line-height: 1.7;
+  color: var(--neutral);
+  max-width: 88ch;
+}
+.disclosure strong { color: var(--ink); font-weight: 500; }
+
+/* ---------- Address / hash chip ---------- */
+.addr {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--card);
+  font-family: var(--font-mono);
+  font-size: var(--fs-micro);
+  word-break: break-all;
+  transition: background var(--t-fast) var(--ease);
+}
+a.addr:hover { background: var(--grey); }
